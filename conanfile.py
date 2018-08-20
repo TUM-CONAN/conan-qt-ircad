@@ -30,7 +30,7 @@ class QtConan(ConanFile):
         pack_names = []
         if tools.os_info.linux_distro == "ubuntu" or tools.os_info.linux_distro == "debian": 
             pack_names = ["libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev", 
-                          "libgstreamer-1.0-dev", "libgstreamer-plugins-base1.0-dev"]
+                          "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev"]
 
         if self.settings.arch == "x86":
             pack_names = [item+":i386" for item in pack_names]
@@ -142,10 +142,8 @@ class QtConan(ConanFile):
 
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
-                env.update({'QMAKESPEC': 'win32-msvc2015'})
                 args += ["-platform win32-msvc2015"]
             if self.settings.compiler.version == "15":
-                env.update({'QMAKESPEC': 'win32-msvc2017'})
                 args += ["-platform win32-msvc2017"]
 
 
