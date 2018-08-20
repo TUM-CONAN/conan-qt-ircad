@@ -120,10 +120,7 @@ class QtConan(ConanFile):
             freetype_libs = self.deps_cpp_info["freetype"].libs
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             os.environ["FREETYPE_LIBS"] = " ".join(["-L"+i for i in freetype_lib_paths] + ["-l"+i for i in freetype_libs])
-        
-        if self.options.config:
-            args.append(str(self.options.config))
-            
+                    
         if self.settings.os == "Windows":
             self._build_windows(args)
         else:
