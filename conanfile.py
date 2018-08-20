@@ -9,7 +9,7 @@ import configparser
 
 class QtConan(ConanFile):
 
-    name = "Qt"
+    name = "qt"
     version = "5.11.1"
     description = "Qt library."
     url = "https://gitlab.lan.local/conan/conan-qt"
