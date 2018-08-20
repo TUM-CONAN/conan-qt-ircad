@@ -15,7 +15,7 @@ class QtConan(ConanFile):
     url = "https://gitlab.lan.local/conan/conan-qt"
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
-    settings = "os", "arch", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
     short_paths = True
 
