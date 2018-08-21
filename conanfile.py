@@ -17,6 +17,7 @@ class QtConan(ConanFile):
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
     short_paths = True
+    no_copy_source = True
 
     def requirements(self):
         if not tools.os_info.is_linux:
@@ -166,9 +167,10 @@ class QtConan(ConanFile):
 
 
         with tools.vcvars(self.settings):
-            self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
-            self.run("%s %s" % (build_command, " ".join(build_args)))
-            self.run("%s install" % build_command)
+            with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
+                self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
+                self.run("%s %s" % (build_command, " ".join(build_args)))
+                self.run("%s install" % build_command)
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
