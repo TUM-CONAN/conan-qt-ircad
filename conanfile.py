@@ -84,6 +84,11 @@ class QtConan(ConanFile):
                 "-llibjpeg",
                 "-l{0}".format(self.deps_cpp_info["libjpeg"].libs[0])
             )
+            tools.replace_in_file(
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"), 
+                "-lfreetype",
+                "-l{0}".format(self.deps_cpp_info["freetype"].libs[0])
+            )
 
         args = [ "-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
