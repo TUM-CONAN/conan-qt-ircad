@@ -17,7 +17,7 @@ class QtConan(ConanFile):
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
     short_paths = True
-    no_copy_source = True
+    no_copy_source = False
 
     def requirements(self):
         if not tools.os_info.is_linux:
