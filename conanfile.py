@@ -16,6 +16,9 @@ class QtConan(ConanFile):
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
+    exports = [
+        "patches/C2338.patch"
+    ]
     short_paths = True
     no_copy_source = False
 
@@ -68,6 +71,8 @@ class QtConan(ConanFile):
         shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
 
     def build(self):
+        tools.patch(os.path.join(self.source_folder, "qt5"), "patches/C2338.patch")
+
         if self.settings.os == "Windows":
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"), 
