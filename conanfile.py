@@ -207,6 +207,9 @@ class QtConan(ConanFile):
 
     def package(self):
         self.copy("bin/qt.conf", src="qtbase")
+        if self.settings.os == "Windows":
+            self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
+
 
     def package_info(self):
         if self.settings.os == "Windows":
