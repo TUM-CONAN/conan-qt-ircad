@@ -22,6 +22,9 @@ class QtConan(ConanFile):
     short_paths = True
     no_copy_source = False
 
+    def configure(self):
+        del self.settings.compiler.libcxx
+
     def requirements(self):
         if not tools.os_info.is_linux:
             self.requires("zlib/1.2.11@fw4spl/stable")
