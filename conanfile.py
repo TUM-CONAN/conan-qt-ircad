@@ -182,8 +182,8 @@ class QtConan(ConanFile):
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
                 self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
-                self.run("%s %s" % (build_command, " ".join(build_args)))
-                self.run("%s install" % build_command)
+                self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
+                self.run("%s install > install.log" % build_command)
 
     def _build_unix(self, args):
         if self.settings.os == "Linux":
@@ -205,8 +205,8 @@ class QtConan(ConanFile):
         with tools.environment_append({"MAKEFLAGS":"-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
             self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
-            self.run("make")
-            self.run("make install")
+            self.run("make > build.log")
+            self.run("make install > install.log")
 
     def package(self):
         self.copy("bin/qt.conf", src="qtbase")
