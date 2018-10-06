@@ -27,40 +27,30 @@ class QtConan(ConanFile):
 
     def requirements(self):
         if not tools.os_info.is_linux:
-            self.requires("zlib/1.2.11@fw4spl/stable")
-            self.requires("libpng/1.6.34@fw4spl/stable")
-            self.requires("libjpeg/9c@fw4spl/stable")
-            self.requires("freetype/2.9.1@fw4spl/stable")
+            self.requires("zlib/1.2.11@sight/stable")
+            self.requires("libpng/1.6.34@sight/stable")
+            self.requires("libjpeg/9c@sight/stable")
+            self.requires("freetype/2.9.1@sight/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2@fw4spl/stable")
+            self.build_requires("jom/1.1.2@sight/stable")
 
-        if tools.os_info.linux_distro == "ubuntu" or tools.os_info.linux_distro == "debian":
+        if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
                 "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev", 
                 "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
                 "libpng-dev", "libjpeg-turbo8-dev", "libfreetype6-dev"
             ]
-
-            if self.settings.arch == "x86":
-                pack_names = [item+":i386" for item in pack_names]
-
             installer = tools.SystemPackageTool()
             installer.install(" ".join(pack_names))
 
     def system_requirements(self):
-        pack_names = []
-        if tools.os_info.linux_distro == "ubuntu" or tools.os_info.linux_distro == "debian": 
+        if tools.os_info.linux_distro == "linuxmint": 
             pack_names = [
                 "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
                 "libpng16-16", "libjpeg-turbo8", "libfreetype6"
             ]
-
-        if self.settings.arch == "x86":
-            pack_names = [item+":i386" for item in pack_names]
-
-        if pack_names:
             installer = tools.SystemPackageTool()
             installer.install(" ".join(pack_names)) # Install the package
 
