@@ -11,7 +11,6 @@ stages:
   - build
 
 msvc2015:
-  image: registry.lan.local:5000/docker-envdev-msvc2015:dev
   stage: build
   variables:
     CONAN_VISUAL_VERSIONS: "14"
@@ -22,7 +21,6 @@ msvc2015:
     - windows
 
 msvc2017:
-  image: registry.lan.local:5000/docker-envdev-msvc2017:dev
   stage: build
   variables:
     CONAN_VISUAL_VERSIONS: "15"
