@@ -14,6 +14,7 @@ msvc2015:
   stage: build
   variables:
     CONAN_VISUAL_VERSIONS: "14"
+    CONAN_USER_HOME: $CI_PROJECT_DIR
   script:
     - python build.py
   tags:
@@ -24,6 +25,7 @@ msvc2017:
   stage: build
   variables:
     CONAN_VISUAL_VERSIONS: "15"
+    CONAN_USER_HOME: $CI_PROJECT_DIR
   script:
     - python build.py
   tags:
