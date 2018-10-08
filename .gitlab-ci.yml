@@ -13,19 +13,23 @@ stages:
 msvc2015:
   image: registry.lan.local:5000/docker-envdev-msvc2015:dev
   stage: build
+  variables:
+    CONAN_VISUAL_VERSIONS: "14"
   script:
     - python build.py
   tags:
-    - docker
+    - shell
     - windows
 
 msvc2017:
   image: registry.lan.local:5000/docker-envdev-msvc2017:dev
   stage: build
+  variables:
+    CONAN_VISUAL_VERSIONS: "15"
   script:
     - python build.py
   tags:
-    - docker
+    - shell
     - windows
 
 gcc-7:
