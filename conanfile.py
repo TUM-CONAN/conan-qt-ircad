@@ -200,9 +200,20 @@ class QtConan(ConanFile):
 
     def package(self):
         self.copy("bin/qt.conf", src="qtbase")
+        qtconf_dir = os.path.join(self.package_folder, "bin", "qt.conf")
+        if tools.os_info.is_windows:
+            tools.replace_in_file(qtconf_dir, "Prefix = ..", "Prefix = qt5")
+            plugins_dir = os.path.join(self.package_folder, "bin", "qt5")
+        else:
+            tools.replace_in_file(qtconf_dir, "Prefix = ..", "Prefix = ../lib/qt5")
+            plugins_dir = os.path.join(self.package_folder, "lib", "qt5")
+        
+        if not os.path.exists(plugins_dir):
+            os.mkdir(plugins_dir)
+        shutil.move(os.path.join(self.package_folder, "plugins"), plugins_dir)
+
         if self.settings.os == "Windows":
             self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
-
 
     def package_info(self):
         if self.settings.os == "Windows":
