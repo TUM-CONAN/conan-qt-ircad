@@ -168,6 +168,7 @@ class QtConan(ConanFile):
             if self.settings.compiler.version == "15":
                 args.append("-platform win32-msvc2017")
 
+        args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
@@ -192,6 +193,8 @@ class QtConan(ConanFile):
             if self.settings.arch == "x86":
                 args += ["-xplatform macx-clang-32"]
 
+        args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
+
         with tools.environment_append({"MAKEFLAGS":"-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
             self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
@@ -200,12 +203,6 @@ class QtConan(ConanFile):
 
     def package(self):
         self.copy("bin/qt.conf", src="qtbase")
-        # copy Qt plugins to be compliant with Sight Qt plugins search system
-        if tools.os_info.is_windows:
-            sight_plugins_dir = os.path.join(self.package_folder, "bin", "qt5", "plugins")
-        else:
-            sight_plugins_dir = os.path.join(self.package_folder, "lib", "qt5", "plugins")
-        shutil.copytree(os.path.join(self.package_folder, "plugins"), sight_plugins_dir)
 
         if self.settings.os == "Windows":
             self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
