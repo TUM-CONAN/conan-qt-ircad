@@ -199,7 +199,7 @@ class QtConan(ConanFile):
         with tools.environment_append({"MAKEFLAGS":"-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
             self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
-            self.run("make > build.log")
+            self.run("make ")
             self.run("make install > install.log")
 
     def package(self):
