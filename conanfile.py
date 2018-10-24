@@ -56,11 +56,9 @@ class QtConan(ConanFile):
     def source(self):
         url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}"\
             .format(self.version[:self.version.rfind('.')], self.version)
-        if tools.os_info.is_windows:
-            tools.get("%s.zip" % url)
-        else:
-            tools.get("%s.tar.xz" % url)
-            shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
+        
+        tools.get("%s.tar.xz" % url)
+        shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
 
     def build(self):
         if self.settings.os == "Windows":
