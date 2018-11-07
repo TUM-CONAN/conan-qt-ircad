@@ -22,11 +22,17 @@ class QtConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def requirements(self):
-        if not tools.os_info.is_linux:
+        if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@sight/stable")
             self.requires("libpng/1.6.34@sight/stable")
             self.requires("libjpeg/9c@sight/stable")
             self.requires("freetype/2.9.1@sight/stable")
+            
+        if tools.os_info.is_macos:
+            self.requires("libpng/1.6.34@sight/stable")
+            self.requires("libjpeg/9c@sight/stable")
+            self.requires("freetype/2.9.1@sight/stable")
+            
 
     def build_requirements(self):
         if tools.os_info.is_windows:
@@ -61,7 +67,7 @@ class QtConan(ConanFile):
         shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
 
     def build(self):
-        if self.settings.os == "Windows":
+        if tools.os_info.is_windows:
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"), 
                 "-lzdll",
@@ -114,7 +120,7 @@ class QtConan(ConanFile):
         args.append("-skip qtdoc")
         args.append("-skip qtlocation")
 
-        if not tools.os_info.is_linux:
+        if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["zlib"].include_paths]
             args += [" ".join(["-L"+i for i in zlib_lib_paths])]
@@ -127,6 +133,19 @@ class QtConan(ConanFile):
             args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
             args += [" ".join(["-L"+i for i in libjpeg_lib_paths])]
 
+            freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
+            args += [" ".join(["-L"+i for i in freetype_lib_paths])]
+        
+        if tools.os_info.is_macos:
+            libpng_lib_paths = self.deps_cpp_info["libpng"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
+            args += [" ".join(["-L"+i for i in libpng_lib_paths])]
+
+            libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
+            args += [" ".join(["-L"+i for i in libjpeg_lib_paths])]
+            
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
             args += [" ".join(["-L"+i for i in freetype_lib_paths])]
@@ -165,7 +184,7 @@ class QtConan(ConanFile):
                 self.run("%s install > install.log" % build_command)
 
     def _build_unix(self, args):
-        if self.settings.os == "Linux":
+        if tools.os_info.is_linux:
             args.append("-fontconfig")
             args.append("-no-dbus")
             args.append("-c++std c++11")
@@ -173,7 +192,8 @@ class QtConan(ConanFile):
             args.append("-gstreamer 1.0")
             if self.settings.arch == "x86":
                 args += ["-xplatform linux-g++-32"]
-        else:
+                
+        if tools.os_info.is_macos:
             args.append("-no-framework")
             args.append("-c++std c++11")
             args.append("-no-xcb")
