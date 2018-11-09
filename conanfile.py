@@ -20,19 +20,17 @@ class QtConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if 'CI' not in os.environ:
+            os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
         if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@sight/stable")
+            
+        if not tools.os_info.is_linux:
             self.requires("libpng/1.6.34@sight/stable")
             self.requires("libjpeg/9c@sight/stable")
             self.requires("freetype/2.9.1@sight/stable")
-            
-        if tools.os_info.is_macos:
-            self.requires("libpng/1.6.34@sight/stable")
-            self.requires("libjpeg/9c@sight/stable")
-            self.requires("freetype/2.9.1@sight/stable")
-            
 
     def build_requirements(self):
         if tools.os_info.is_windows:
@@ -150,7 +148,7 @@ class QtConan(ConanFile):
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
             args += [" ".join(["-L"+i for i in freetype_lib_paths])]
                     
-        if self.settings.os == "Windows":
+        if tools.os_info.is_windows:
             self._build_windows(args)
         else:
             self._build_unix(args)
