@@ -11,7 +11,7 @@ class QtConan(ConanFile):
     name = "qt"
     version = "5.11.2"
     description = "Qt library."
-    url = "https://gitlab.lan.local/conan/conan-qt"
+    url = "https://git.ircad.fr/conan/conan-qt"
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
