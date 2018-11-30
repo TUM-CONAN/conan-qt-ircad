@@ -40,7 +40,7 @@ class QtConan(ConanFile):
             pack_names = [
                 "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev", 
                 "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
-                "libpng-dev", "libjpeg-turbo8-dev", "libfreetype6-dev", 
+                "libpng12-dev", "libjpeg-turbo8-dev", "libfreetype6-dev", 
                 "libfontconfig1-dev"
             ]
             installer = tools.SystemPackageTool()
@@ -51,7 +51,7 @@ class QtConan(ConanFile):
         if tools.os_info.linux_distro == "linuxmint": 
             pack_names = [
                 "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
-                "libpng16-16", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
+                "libpng12-0", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
             ]
             installer = tools.SystemPackageTool()
             for p in pack_names:
