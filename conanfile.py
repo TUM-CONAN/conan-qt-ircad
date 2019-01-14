@@ -26,7 +26,7 @@ class QtConan(ConanFile):
     def requirements(self):
         if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@sight/stable")
-            
+
         if not tools.os_info.is_linux:
             self.requires("libpng/1.6.34@sight/stable")
             self.requires("libjpeg/9c@sight/stable")
@@ -37,22 +37,38 @@ class QtConan(ConanFile):
             self.build_requires("jom/1.1.2@sight/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
-            pack_names = [
-                "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev", 
-                "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
-                "libpng12-dev", "libjpeg-turbo8-dev", "libfreetype6-dev", 
-                "libfontconfig1-dev"
-            ]
+            pack_names = []
+            if tools.os_info.os_version.major(fill=False) == "18":
+                pack_names = [
+                    "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev",
+                    "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
+                    "libpng12-dev", "libjpeg-turbo8-dev", "libfreetype6-dev",
+                    "libfontconfig1-dev"
+                ]
+            elif tools.os_info.os_version.major(fill=False) == "19":
+                pack_names = [
+                    "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev",
+                    "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
+                    "libpng-dev", "libjpeg-turbo8-dev", "libfreetype6-dev",
+                    "libfontconfig1-dev"
+                ]
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
 
     def system_requirements(self):
-        if tools.os_info.linux_distro == "linuxmint": 
-            pack_names = [
-                "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
-                "libpng12-0", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
-            ]
+        if tools.os_info.linux_distro == "linuxmint":
+            pack_names = []
+            if tools.os_info.os_version.major(fill=False) == "18":
+                pack_names = [
+                    "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
+                    "libpng12-0", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
+                ]
+            elif tools.os_info.os_version.major(fill=False) == "19":
+                pack_names = [
+                    "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
+                    "libpng16-16", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
+                ]
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
@@ -60,29 +76,29 @@ class QtConan(ConanFile):
     def source(self):
         url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}"\
             .format(self.version[:self.version.rfind('.')], self.version)
-        
+
         tools.get("%s.tar.xz" % url)
         shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
 
     def build(self):
         if tools.os_info.is_windows:
             tools.replace_in_file(
-                os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"), 
+                os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"),
                 "-lzdll",
                 "-l{0}".format(self.deps_cpp_info["zlib"].libs[0])
             )
             tools.replace_in_file(
-                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"), 
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
                 "-llibpng",
                 "-l{0}".format(self.deps_cpp_info["libpng"].libs[0])
             )
             tools.replace_in_file(
-                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"), 
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
                 "-llibjpeg",
                 "-l{0}".format(self.deps_cpp_info["libjpeg"].libs[0])
             )
             tools.replace_in_file(
-                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"), 
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
                 "-lfreetype",
                 "-l{0}".format(self.deps_cpp_info["freetype"].libs[0])
             )
@@ -134,7 +150,7 @@ class QtConan(ConanFile):
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
             args += [" ".join(["-L"+i for i in freetype_lib_paths])]
-        
+
         if tools.os_info.is_macos:
             libpng_lib_paths = self.deps_cpp_info["libpng"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
@@ -143,17 +159,17 @@ class QtConan(ConanFile):
             libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
             args += [" ".join(["-L"+i for i in libjpeg_lib_paths])]
-            
+
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
             args += [" ".join(["-L"+i for i in freetype_lib_paths])]
-                    
+
         if tools.os_info.is_windows:
             self._build_windows(args)
         else:
             self._build_unix(args)
-            
-        with open('qtbase/bin/qt.conf', 'w') as f: 
+
+        with open('qtbase/bin/qt.conf', 'w') as f:
             f.write('[Paths]\nPrefix = ..')
 
     def _build_windows(self, args):
@@ -190,7 +206,7 @@ class QtConan(ConanFile):
             args.append("-gstreamer 1.0")
             if self.settings.arch == "x86":
                 args += ["-xplatform linux-g++-32"]
-                
+
         if tools.os_info.is_macos:
             args.append("-no-framework")
             args.append("-c++std c++11")
