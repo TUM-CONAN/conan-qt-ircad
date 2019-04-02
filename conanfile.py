@@ -105,8 +105,8 @@ class QtConan(ConanFile):
                 'libxcb-shape0',
                 'libxcb-randr0',
                 'libxcb-render-util0',
-                'libgstreamer1.0',
-                'libgstreamer-plugins-base1.0',
+                'libgstreamer1.0-0',
+                'libgstreamer-plugins-base1.0-0',
                 'libjpeg-turbo8',
                 'openssl'
             ]
