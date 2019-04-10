@@ -161,6 +161,14 @@ class QtConan(ConanFile):
                 "-l{0}".format(self.deps_cpp_info["freetype"].libs[0])
             )
 
+        # Since we removed sym links of libpng on macos, we need to tell qt to look for "libpng16d".
+        elif tools.os_info.is_macos and self.settings.build_type == "Debug":
+            tools.replace_in_file(
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
+                "-lpng16",
+                "-l{0}".format(self.deps_cpp_info["libpng"].libs[0])
+            )
+
         args = [ "-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
