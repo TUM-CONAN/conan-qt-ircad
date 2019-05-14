@@ -9,12 +9,19 @@ import shutil
 class QtConan(ConanFile):
 
     name = "qt"
-    version = "5.11.2"
+    upstream_version = "5.12.2"
+    package_revision = ""
+    version = "{0}{1}".format(upstream_version, package_revision)
+
     description = "Qt library."
     url = "https://git.ircad.fr/conan/conan-qt"
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
+    exports = [
+        "patches/c++11.patch",
+    ]
+
     short_paths = True
     no_copy_source = False
 
@@ -25,62 +32,113 @@ class QtConan(ConanFile):
 
     def requirements(self):
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11@sight/stable")
+            self.requires("zlib/1.2.11-r1@sight/stable")
+            self.requires("openssl/1.1.1b@sight/stable")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34@sight/stable")
-            self.requires("libjpeg/9c@sight/stable")
-            self.requires("freetype/2.9.1@sight/stable")
+            self.requires("libpng/1.6.34-r1@sight/stable")
+            self.requires("libjpeg/9c-r1@sight/stable")
+            self.requires("freetype/2.9.1-r1@sight/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2@sight/stable")
+            self.build_requires("jom/1.1.2-r1@sight/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
-            pack_names = []
+            pack_names = [
+                'libfontconfig1-dev',
+                'libfreetype6-dev',
+                'libx11-dev',
+                'libxext-dev',
+                'libxfixes-dev',
+                'libxi-dev',
+                'libxrender-dev',
+                'libxcomposite-dev',
+                'libxcursor-dev',
+                'libxtst-dev',
+                'libxkbcommon-dev',
+                'libxkbcommon-x11-dev',
+                'libxcb1-dev',
+                'libx11-xcb-dev',
+                'libxcb-glx0-dev',
+                'libxcb-keysyms1-dev',
+                'libxcb-image0-dev',
+                'libxcb-shm0-dev',
+                'libxcb-icccm4-dev',
+                'libxcb-sync0-dev',
+                'libxcb-xfixes0-dev',
+                'libxcb-shape0-dev',
+                'libxcb-randr0-dev',
+                'libxcb-render-util0-dev',
+                'libc6-dev',
+                'libgstreamer1.0-dev',
+                'libgstreamer-plugins-base1.0-dev',
+                'libjpeg-turbo8-dev',
+                'openssl'
+            ]
+
             if tools.os_info.os_version.major(fill=False) == "18":
-                pack_names = [
-                    "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev",
-                    "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
-                    "libpng12-dev", "libjpeg-turbo8-dev", "libfreetype6-dev",
-                    "libfontconfig1-dev"
+                pack_names += [
+                    'libpng12-dev'
                 ]
             elif tools.os_info.os_version.major(fill=False) == "19":
-                pack_names = [
-                    "libxcb1-dev", "libx11-dev", "libc6-dev", "libgl1-mesa-dev",
-                    "libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev",
-                    "libpng-dev", "libjpeg-turbo8-dev", "libfreetype6-dev",
-                    "libfontconfig1-dev"
+                pack_names += [
+                    'libpng-dev'
                 ]
+            
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
 
     def system_requirements(self):
         if tools.os_info.linux_distro == "linuxmint":
-            pack_names = []
+            pack_names = [
+                'libfontconfig1',
+                'libfreetype6',
+                'libxcb1',
+                'libxcb-glx0',
+                'libxcb-keysyms1',
+                'libxcb-image0',
+                'libxcb-shm0',
+                'libxcb-icccm4',
+                'libxcb-xfixes0',
+                'libxcb-shape0',
+                'libxcb-randr0',
+                'libxcb-render-util0',
+                'libgstreamer1.0-0',
+                'libgstreamer-plugins-base1.0-0',
+                'libjpeg-turbo8',
+                'openssl'
+            ]
+
             if tools.os_info.os_version.major(fill=False) == "18":
-                pack_names = [
-                    "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
-                    "libpng12-0", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
+                pack_names += [
+                    'libpng12-0'
                 ]
             elif tools.os_info.os_version.major(fill=False) == "19":
-                pack_names = [
-                    "libxcb1", "libx11-6", "libgstreamer1.0-0", "libgstreamer-plugins-base1.0-0",
-                    "libpng16-16", "libjpeg-turbo8", "libfreetype6", "libfontconfig1"
+                pack_names += [
+                    'libpng16-16'
                 ]
+            
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
 
     def source(self):
         url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}"\
-            .format(self.version[:self.version.rfind('.')], self.version)
+            .format(self.upstream_version[:self.upstream_version.rfind('.')], self.upstream_version)
 
         tools.get("%s.tar.xz" % url)
-        shutil.move("qt-everywhere-src-%s" % self.version, "qt5")
+        shutil.move("qt-everywhere-src-%s" % self.upstream_version, "qt5")
 
     def build(self):
+
+        # TODO: remove this once this patch from upstream is merged in Qt >= 5.12.2
+        tools.patch(
+            os.path.join(self.source_folder, "qt5", "qtdeclarative"),
+            "patches/c++11.patch"
+        )
+
         if tools.os_info.is_windows:
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"),
@@ -103,6 +161,14 @@ class QtConan(ConanFile):
                 "-l{0}".format(self.deps_cpp_info["freetype"].libs[0])
             )
 
+        # Since we removed sym links of libpng on macos, we need to tell qt to look for "libpng16d".
+        elif tools.os_info.is_macos and self.settings.build_type == "Debug":
+            tools.replace_in_file(
+                os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
+                "-lpng16",
+                "-l{0}".format(self.deps_cpp_info["libpng"].libs[0])
+            )
+
         args = [ "-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
@@ -110,6 +176,16 @@ class QtConan(ConanFile):
             args.append("-debug")
         else:
             args.append("-release")
+
+        # Increase compilation time, but significally decrease startup time, binaries size of Qt application
+        # See https://wiki.qt.io/Performance_Tip_Startup_Time
+        if tools.os_info.is_linux:
+            args.append("-reduce-relocations")
+        else:
+            args.append("-ltcg")
+
+        # Use optimized qrc, uic, moc... even in debug for faster build later
+        args.append("-optimized-tools")
 
         args.append("-system-zlib")
         args.append("-system-libpng")
@@ -119,8 +195,8 @@ class QtConan(ConanFile):
         # openGL
         args.append("-opengl desktop")
 
-        # openSSL
-        args.append("-no-openssl")
+        # SSL
+        args.append("-ssl")
 
         # Qt skip modules list
         args.append("-skip qtactiveqt")
@@ -151,7 +227,11 @@ class QtConan(ConanFile):
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
             args += [" ".join(["-L"+i for i in freetype_lib_paths])]
 
-        if tools.os_info.is_macos:
+            openssl_lib_paths = self.deps_cpp_info["openssl"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["openssl"].include_paths]
+            args += [" ".join(["-L"+i for i in openssl_lib_paths])]
+
+        elif tools.os_info.is_macos:
             libpng_lib_paths = self.deps_cpp_info["libpng"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
             args += [" ".join(["-L"+i for i in libpng_lib_paths])]
@@ -173,6 +253,7 @@ class QtConan(ConanFile):
             f.write('[Paths]\nPrefix = ..')
 
     def _build_windows(self, args):
+        args.append("-mp")
         args.append("-no-angle")
         args.append("-mediaplayer-backend wmf")
         build_command = find_executable("jom.exe")
@@ -199,6 +280,7 @@ class QtConan(ConanFile):
 
     def _build_unix(self, args):
         if tools.os_info.is_linux:
+            args.append("-ccache")
             args.append("-fontconfig")
             args.append("-no-dbus")
             args.append("-c++std c++11")
