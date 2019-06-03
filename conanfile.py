@@ -10,7 +10,7 @@ class QtConan(ConanFile):
 
     name = "qt"
     upstream_version = "5.12.2"
-    package_revision = ""
+    package_revision = "-r1"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -31,18 +31,19 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
+        self.requires("common/1.0.0@sight/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r1@sight/stable")
-            self.requires("openssl/1.1.1b@sight/stable")
+            self.requires("zlib/1.2.11-r2@sight/testing")
+            self.requires("openssl/1.1.1b-r1@sight/testing")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r1@sight/stable")
-            self.requires("libjpeg/9c-r1@sight/stable")
-            self.requires("freetype/2.9.1-r1@sight/stable")
+            self.requires("libpng/1.6.34-r2@sight/testing")
+            self.requires("libjpeg/9c-r2@sight/testing")
+            self.requires("freetype/2.9.1-r2@sight/testing")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2-r1@sight/stable")
+            self.build_requires("jom/1.1.2-r2@sight/testing")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -132,6 +133,10 @@ class QtConan(ConanFile):
         shutil.move("qt-everywhere-src-%s" % self.upstream_version, "qt5")
 
     def build(self):
+
+        #Import common flags and defines
+
+        import common
 
         # TODO: remove this once this patch from upstream is merged in Qt >= 5.12.2
         tools.patch(
