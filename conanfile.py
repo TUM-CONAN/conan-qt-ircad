@@ -192,7 +192,7 @@ class QtConan(ConanFile):
         args.append("-ltcg")
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-            args.append("-use-gold-linker=no")
+            args.append("-no-use-gold-linker")
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
