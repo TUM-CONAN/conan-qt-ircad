@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, tools
-from distutils.spawn import find_executable
 import os
 import shutil
+from distutils.spawn import find_executable
+
+from conans import ConanFile, tools
+
 
 class QtConan(ConanFile):
-
     name = "qt"
     upstream_version = "5.12.2"
     package_revision = "-r1"
@@ -86,7 +87,7 @@ class QtConan(ConanFile):
                 pack_names += [
                     'libpng-dev'
                 ]
-            
+
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
@@ -120,20 +121,20 @@ class QtConan(ConanFile):
                 pack_names += [
                     'libpng16-16'
                 ]
-            
+
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
 
     def source(self):
-        url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}"\
+        url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}" \
             .format(self.upstream_version[:self.upstream_version.rfind('.')], self.upstream_version)
 
         tools.get("%s.tar.xz" % url)
         shutil.move("qt-everywhere-src-%s" % self.upstream_version, "qt5")
 
     def build(self):
-       if tools.os_info.is_windows:
+        if tools.os_info.is_windows:
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"),
                 "-lzdll",
@@ -155,7 +156,7 @@ class QtConan(ConanFile):
                 "-l{0}".format(self.deps_cpp_info["freetype"].libs[0])
             )
 
-        # Since we removed sym links of libpng on macos, we need to tell qt to look for "libpng16d".
+            # Since we removed sym links of libpng on macos, we need to tell qt to look for "libpng16d".
         elif tools.os_info.is_macos and self.settings.build_type == "Debug":
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
@@ -163,7 +164,7 @@ class QtConan(ConanFile):
                 "-l{0}".format(self.deps_cpp_info["libpng"].libs[0])
             )
 
-        args = [ "-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
+        args = ["-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
         if self.settings.build_type == "Debug":
@@ -183,7 +184,6 @@ class QtConan(ConanFile):
             # Increase compilation time, but significally decrease startup time, binaries size of Qt application
             # See https://wiki.qt.io/Performance_Tip_Startup_Time
             args.append("-ltcg")
-       
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
@@ -214,36 +214,36 @@ class QtConan(ConanFile):
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["zlib"].include_paths]
-            args += [" ".join(["-L"+i for i in zlib_lib_paths])]
+            args += [" ".join(["-L" + i for i in zlib_lib_paths])]
 
             libpng_lib_paths = self.deps_cpp_info["libpng"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
-            args += [" ".join(["-L"+i for i in libpng_lib_paths])]
+            args += [" ".join(["-L" + i for i in libpng_lib_paths])]
 
             libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
-            args += [" ".join(["-L"+i for i in libjpeg_lib_paths])]
+            args += [" ".join(["-L" + i for i in libjpeg_lib_paths])]
 
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
-            args += [" ".join(["-L"+i for i in freetype_lib_paths])]
+            args += [" ".join(["-L" + i for i in freetype_lib_paths])]
 
             openssl_lib_paths = self.deps_cpp_info["openssl"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["openssl"].include_paths]
-            args += [" ".join(["-L"+i for i in openssl_lib_paths])]
+            args += [" ".join(["-L" + i for i in openssl_lib_paths])]
 
         elif tools.os_info.is_macos:
             libpng_lib_paths = self.deps_cpp_info["libpng"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
-            args += [" ".join(["-L"+i for i in libpng_lib_paths])]
+            args += [" ".join(["-L" + i for i in libpng_lib_paths])]
 
             libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
-            args += [" ".join(["-L"+i for i in libjpeg_lib_paths])]
+            args += [" ".join(["-L" + i for i in libjpeg_lib_paths])]
 
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
             args += ["-I %s" % i for i in self.deps_cpp_info["freetype"].include_paths]
-            args += [" ".join(["-L"+i for i in freetype_lib_paths])]
+            args += [" ".join(["-L" + i for i in freetype_lib_paths])]
 
         if tools.os_info.is_windows:
             self._build_windows(args)
@@ -253,71 +253,75 @@ class QtConan(ConanFile):
         with open('qtbase/bin/qt.conf', 'w') as f:
             f.write('[Paths]\nPrefix = ..')
 
-    def _build_windows(self, args):
-        args.append("-mp")
-        args.append("-no-angle")
-        args.append("-mediaplayer-backend wmf")
-        build_command = find_executable("jom.exe")
-        if build_command:
-            build_args = ["-j", str(tools.cpu_count())]
-        else:
-            build_command = "nmake.exe"
-            build_args = []
-        self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-        if self.settings.compiler == "Visual Studio":
-            if self.settings.compiler.version == "14":
-                args.append("-platform win32-msvc2015")
-            elif self.settings.compiler.version == "15":
-                args.append("-platform win32-msvc2017")
-            elif self.settings.compiler.version == "16":
-                args.append("-platform win32-msvc2019")
+def _build_windows(self, args):
+    args.append("-mp")
+    args.append("-no-angle")
+    args.append("-mediaplayer-backend wmf")
+    build_command = find_executable("jom.exe")
+    if build_command:
+        build_args = ["-j", str(tools.cpu_count())]
+    else:
+        build_command = "nmake.exe"
+        build_args = []
+    self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-        args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
+    if self.settings.compiler == "Visual Studio":
+        if self.settings.compiler.version == "14":
+            args.append("-platform win32-msvc2015")
+        elif self.settings.compiler.version == "15":
+            args.append("-platform win32-msvc2017")
+        elif self.settings.compiler.version == "16":
+            args.append("-platform win32-msvc2019")
 
-        #Import common flags and defines
-        import common
+    args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
-        with tools.vcvars(self.settings):
-            with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
-                self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
-                self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
-                self.run("%s install > install.log" % build_command)
+    # Import common flags and defines
+    import common
 
-    def _build_unix(self, args):
-        if tools.os_info.is_linux:
-            args.append("-ccache")
-            args.append("-fontconfig")
-            args.append("-no-dbus")
-            args.append("-c++std c++11")
-            args.append("-qt-xcb")
-            args.append("-gstreamer 1.0")
-
-        if tools.os_info.is_macos:
-            args.append("-no-framework")
-            args.append("-c++std c++11")
-            args.append("-no-xcb")
-            args.append("-no-glib")
-            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
-
-        args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
-
-        #Import common flags and defines
-        import common
-        
-        with tools.environment_append({"MAKEFLAGS":"-j %d" % tools.cpu_count()}):
-            self.output.info("Using '%d' threads" % tools.cpu_count())
+    with tools.vcvars(self.settings):
+        with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
             self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
-            self.run("make ")
-            self.run("make install > install.log")
+            self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
+            self.run("%s install > install.log" % build_command)
 
-    def package(self):
-        self.copy("bin/qt.conf", src="qtbase")
 
-        if self.settings.os == "Windows":
-            self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
+def _build_unix(self, args):
+    if tools.os_info.is_linux:
+        args.append("-ccache")
+        args.append("-fontconfig")
+        args.append("-no-dbus")
+        args.append("-c++std c++11")
+        args.append("-qt-xcb")
+        args.append("-gstreamer 1.0")
 
-    def package_info(self):
-        if self.settings.os == "Windows":
-            self.env_info.path.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.CMAKE_PREFIX_PATH.append(self.package_folder)
+    if tools.os_info.is_macos:
+        args.append("-no-framework")
+        args.append("-c++std c++11")
+        args.append("-no-xcb")
+        args.append("-no-glib")
+        args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
+
+    args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
+
+    # Import common flags and defines
+    import common
+
+    with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
+        self.output.info("Using '%d' threads" % tools.cpu_count())
+        self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+        self.run("make ")
+        self.run("make install > install.log")
+
+
+def package(self):
+    self.copy("bin/qt.conf", src="qtbase")
+
+    if self.settings.os == "Windows":
+        self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
+
+
+def package_info(self):
+    if self.settings.os == "Windows":
+        self.env_info.path.append(os.path.join(self.package_folder, "bin"))
+    self.env_info.CMAKE_PREFIX_PATH.append(self.package_folder)
