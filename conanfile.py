@@ -179,7 +179,6 @@ class QtConan(ConanFile):
 
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-            args.append("-no-use-gold-linker")
         else:
             # Increase compilation time, but significally decrease startup time, binaries size of Qt application
             # See https://wiki.qt.io/Performance_Tip_Startup_Time
