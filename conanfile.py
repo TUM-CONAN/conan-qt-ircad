@@ -133,18 +133,7 @@ class QtConan(ConanFile):
         shutil.move("qt-everywhere-src-%s" % self.upstream_version, "qt5")
 
     def build(self):
-
-        #Import common flags and defines
-
-        import common
-
-        # TODO: remove this once this patch from upstream is merged in Qt >= 5.12.2
-        tools.patch(
-            os.path.join(self.source_folder, "qt5", "qtdeclarative"),
-            "patches/c++11.patch"
-        )
-
-        if tools.os_info.is_windows:
+       if tools.os_info.is_windows:
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"),
                 "-lzdll",
@@ -187,12 +176,14 @@ class QtConan(ConanFile):
         else:
             args.append("-release")
 
-        # Increase compilation time, but significally decrease startup time, binaries size of Qt application
-        # See https://wiki.qt.io/Performance_Tip_Startup_Time
-        args.append("-ltcg")
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
             args.append("-no-use-gold-linker")
+        else:
+            # Increase compilation time, but significally decrease startup time, binaries size of Qt application
+            # See https://wiki.qt.io/Performance_Tip_Startup_Time
+            args.append("-ltcg")
+       
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
@@ -284,9 +275,12 @@ class QtConan(ConanFile):
 
         args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
+        #Import common flags and defines
+        import common
+
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
-                self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
+                self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
                 self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
                 self.run("%s install > install.log" % build_command)
 
@@ -296,7 +290,7 @@ class QtConan(ConanFile):
             args.append("-fontconfig")
             args.append("-no-dbus")
             args.append("-c++std c++11")
-            args.append("-xcb")
+            args.append("-qt-xcb")
             args.append("-gstreamer 1.0")
 
         if tools.os_info.is_macos:
@@ -306,12 +300,14 @@ class QtConan(ConanFile):
             args.append("-no-glib")
             args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
 
-
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
+        #Import common flags and defines
+        import common
+        
         with tools.environment_append({"MAKEFLAGS":"-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
-            self.run("%s/qt5/configure %s" % (self.source_folder, " ".join(args)))
+            self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
             self.run("make ")
             self.run("make install > install.log")
 
