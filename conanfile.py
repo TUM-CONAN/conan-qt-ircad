@@ -43,7 +43,7 @@ class QtConan(ConanFile):
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2-r2@sight/testing")
+            self.build_requires("jom/1.1.2-r1@sight/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -179,6 +179,8 @@ class QtConan(ConanFile):
 
         if self.settings.build_type == "Debug":
             args.append("-debug")
+        elif self.settings.build_type == "RelWithDebInfo":
+            args.append("-debug")
         else:
             args.append("-release")
 
@@ -214,6 +216,7 @@ class QtConan(ConanFile):
         args.append("-skip qtserialport")
         args.append("-skip qtdoc")
         args.append("-skip qtlocation")
+        args.append("-h")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
@@ -299,6 +302,7 @@ class QtConan(ConanFile):
             args.append("-c++std c++11")
             args.append("-no-xcb")
             args.append("-no-glib")
+            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
             if self.settings.arch == "x86":
                 args += ["-xplatform macx-clang-32"]
 
