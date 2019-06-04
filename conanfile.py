@@ -296,7 +296,7 @@ class QtConan(ConanFile):
             args.append("-fontconfig")
             args.append("-no-dbus")
             args.append("-c++std c++11")
-            args.append("-qt-xcb")
+            args.append("-xcb")
             args.append("-gstreamer 1.0")
 
         if tools.os_info.is_macos:
