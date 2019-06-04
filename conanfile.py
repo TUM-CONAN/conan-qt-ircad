@@ -179,17 +179,20 @@ class QtConan(ConanFile):
 
         if self.settings.build_type == "Debug":
             args.append("-debug")
+            args.append("-gdb-index")
         elif self.settings.build_type == "RelWithDebInfo":
-            args.append("-debug")
+            args.append("-release")
+            args.append("-force-debug-info")
+            args.append("-gdb-index")
         else:
             args.append("-release")
 
         # Increase compilation time, but significally decrease startup time, binaries size of Qt application
         # See https://wiki.qt.io/Performance_Tip_Startup_Time
+        args.append("-ltcg")
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-        else:
-            args.append("-ltcg")
+            args.append("-use-gold-linker=no")
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
@@ -216,7 +219,6 @@ class QtConan(ConanFile):
         args.append("-skip qtserialport")
         args.append("-skip qtdoc")
         args.append("-skip qtlocation")
-        args.append("-h")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
@@ -275,8 +277,10 @@ class QtConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
                 args.append("-platform win32-msvc2015")
-            if self.settings.compiler.version == "15":
+            elif self.settings.compiler.version == "15":
                 args.append("-platform win32-msvc2017")
+            elif self.settings.compiler.version == "16":
+                args.append("-platform win32-msvc2019")
 
         args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
@@ -294,8 +298,6 @@ class QtConan(ConanFile):
             args.append("-c++std c++11")
             args.append("-qt-xcb")
             args.append("-gstreamer 1.0")
-            if self.settings.arch == "x86":
-                args += ["-xplatform linux-g++-32"]
 
         if tools.os_info.is_macos:
             args.append("-no-framework")
@@ -303,8 +305,7 @@ class QtConan(ConanFile):
             args.append("-no-xcb")
             args.append("-no-glib")
             args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
-            if self.settings.arch == "x86":
-                args += ["-xplatform macx-clang-32"]
+
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
