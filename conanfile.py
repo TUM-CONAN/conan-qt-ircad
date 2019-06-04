@@ -274,12 +274,9 @@ class QtConan(ConanFile):
 
         args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
-        # Import common flags and defines
-        import common
-
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
-                self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+                self.run("%s/qt5/configure %s " % (self.source_folder, " ".join(args)))
                 self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
                 self.run("%s install > install.log" % build_command)
 
