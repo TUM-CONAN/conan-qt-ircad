@@ -253,75 +253,71 @@ class QtConan(ConanFile):
         with open('qtbase/bin/qt.conf', 'w') as f:
             f.write('[Paths]\nPrefix = ..')
 
+    def _build_windows(self, args):
+        args.append("-mp")
+        args.append("-no-angle")
+        args.append("-mediaplayer-backend wmf")
+        build_command = find_executable("jom.exe")
+        if build_command:
+            build_args = ["-j", str(tools.cpu_count())]
+        else:
+            build_command = "nmake.exe"
+            build_args = []
+        self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
-def _build_windows(self, args):
-    args.append("-mp")
-    args.append("-no-angle")
-    args.append("-mediaplayer-backend wmf")
-    build_command = find_executable("jom.exe")
-    if build_command:
-        build_args = ["-j", str(tools.cpu_count())]
-    else:
-        build_command = "nmake.exe"
-        build_args = []
-    self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.compiler.version == "14":
+                args.append("-platform win32-msvc2015")
+            elif self.settings.compiler.version == "15":
+                args.append("-platform win32-msvc2017")
+            elif self.settings.compiler.version == "16":
+                args.append("-platform win32-msvc2019")
 
-    if self.settings.compiler == "Visual Studio":
-        if self.settings.compiler.version == "14":
-            args.append("-platform win32-msvc2015")
-        elif self.settings.compiler.version == "15":
-            args.append("-platform win32-msvc2017")
-        elif self.settings.compiler.version == "16":
-            args.append("-platform win32-msvc2019")
+        args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
 
-    args.append("-plugindir " + os.path.join(self.package_folder, "bin", "qt5", "plugins"))
+        # Import common flags and defines
+        import common
 
-    # Import common flags and defines
-    import common
+        with tools.vcvars(self.settings):
+            with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
+                self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+                self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
+                self.run("%s install > install.log" % build_command)
 
-    with tools.vcvars(self.settings):
-        with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
+    def _build_unix(self, args):
+        if tools.os_info.is_linux:
+            args.append("-ccache")
+            args.append("-fontconfig")
+            args.append("-no-dbus")
+            args.append("-c++std c++11")
+            args.append("-qt-xcb")
+            args.append("-gstreamer 1.0")
+
+        if tools.os_info.is_macos:
+            args.append("-no-framework")
+            args.append("-c++std c++11")
+            args.append("-no-xcb")
+            args.append("-no-glib")
+            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
+
+        args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
+
+        # Import common flags and defines
+        import common
+
+        with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
+            self.output.info("Using '%d' threads" % tools.cpu_count())
             self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
-            self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
-            self.run("%s install > install.log" % build_command)
+            self.run("make ")
+            self.run("make install > install.log")
 
+    def package(self):
+        self.copy("bin/qt.conf", src="qtbase")
 
-def _build_unix(self, args):
-    if tools.os_info.is_linux:
-        args.append("-ccache")
-        args.append("-fontconfig")
-        args.append("-no-dbus")
-        args.append("-c++std c++11")
-        args.append("-qt-xcb")
-        args.append("-gstreamer 1.0")
-
-    if tools.os_info.is_macos:
-        args.append("-no-framework")
-        args.append("-c++std c++11")
-        args.append("-no-xcb")
-        args.append("-no-glib")
-        args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
-
-    args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
-
-    # Import common flags and defines
-    import common
-
-    with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
-        self.output.info("Using '%d' threads" % tools.cpu_count())
-        self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
-        self.run("make ")
-        self.run("make install > install.log")
-
-
-def package(self):
-    self.copy("bin/qt.conf", src="qtbase")
-
-    if self.settings.os == "Windows":
-        self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
-
-
-def package_info(self):
-    if self.settings.os == "Windows":
-        self.env_info.path.append(os.path.join(self.package_folder, "bin"))
-    self.env_info.CMAKE_PREFIX_PATH.append(self.package_folder)
+        if self.settings.os == "Windows":
+            self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
+    
+    def package_info(self):
+        if self.settings.os == "Windows":
+            self.env_info.path.append(os.path.join(self.package_folder, "bin"))
+        self.env_info.CMAKE_PREFIX_PATH.append(self.package_folder)
