@@ -303,7 +303,7 @@ class QtConan(ConanFile):
 
         with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
-            self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+            self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags() + " --fuck"))
             self.run("make ")
             self.run("make install > install.log")
 
