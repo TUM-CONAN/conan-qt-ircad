@@ -34,13 +34,13 @@ class QtConan(ConanFile):
     def requirements(self):
         self.requires("common/1.0.0@sight/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r2@sight/testing")
-            self.requires("openssl/1.1.1b-r1@sight/testing")
+            self.requires("zlib/1.2.11-r2@sight/stable")
+            self.requires("openssl/1.1.1b-r1@sight/stable")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r2@sight/testing")
-            self.requires("libjpeg/9c-r2@sight/testing")
-            self.requires("freetype/2.9.1-r2@sight/testing")
+            self.requires("libpng/1.6.34-r2@sight/stable")
+            self.requires("libjpeg/9c-r2@sight/stable")
+            self.requires("freetype/2.9.1-r2@sight/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
