@@ -294,7 +294,7 @@ class QtConan(ConanFile):
             args.append("-c++std c++11")
             args.append("-no-xcb")
             args.append("-no-glib")
-            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64h")
+            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64")
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
