@@ -10,8 +10,8 @@ from conans import ConanFile, tools
 
 class QtConan(ConanFile):
     name = "qt"
-    upstream_version = "5.12.2"
-    package_revision = "-r1"
+    upstream_version = "5.12.4"
+    package_revision = ""
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
