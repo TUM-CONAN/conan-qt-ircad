@@ -19,9 +19,6 @@ class QtConan(ConanFile):
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
-    exports = [
-        "patches/c++11.patch",
-    ]
 
     short_paths = True
     no_copy_source = False
@@ -291,7 +288,6 @@ class QtConan(ConanFile):
 
         if tools.os_info.is_macos:
             args.append("-no-framework")
-            args.append("-c++std c++11")
             args.append("-no-xcb")
             args.append("-no-glib")
             args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64")
