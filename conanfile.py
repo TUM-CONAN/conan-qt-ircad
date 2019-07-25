@@ -176,7 +176,7 @@ class QtConan(ConanFile):
 
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-        else:
+        elif tools.os_info.is_windows:
             # Increase compilation time, but significally decrease startup time, binaries size of Qt application
             # See https://wiki.qt.io/Performance_Tip_Startup_Time
             args.append("-ltcg")
@@ -287,10 +287,10 @@ class QtConan(ConanFile):
             args.append("-gstreamer 1.0")
 
         if tools.os_info.is_macos:
+            args.append("-ccache")
             args.append("-no-framework")
             args.append("-no-xcb")
             args.append("-no-glib")
-            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64")
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
