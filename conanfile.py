@@ -10,8 +10,8 @@ from conans import ConanFile, tools
 
 class QtConan(ConanFile):
     name = "qt"
-    upstream_version = "5.12.2"
-    package_revision = "-r1"
+    upstream_version = "5.12.4"
+    package_revision = ""
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -19,9 +19,6 @@ class QtConan(ConanFile):
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
-    exports = [
-        "patches/c++11.patch",
-    ]
 
     short_paths = True
     no_copy_source = False
@@ -179,7 +176,7 @@ class QtConan(ConanFile):
 
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-        else:
+        elif tools.os_info.is_windows:
             # Increase compilation time, but significally decrease startup time, binaries size of Qt application
             # See https://wiki.qt.io/Performance_Tip_Startup_Time
             args.append("-ltcg")
@@ -290,11 +287,10 @@ class QtConan(ConanFile):
             args.append("-gstreamer 1.0")
 
         if tools.os_info.is_macos:
+            args.append("-ccache")
             args.append("-no-framework")
-            args.append("-c++std c++11")
             args.append("-no-xcb")
             args.append("-no-glib")
-            args.append("-platform macx-clang QMAKE_APPLE_DEVICE_ARCHS=x86_64")
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
