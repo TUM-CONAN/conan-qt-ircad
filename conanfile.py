@@ -11,7 +11,7 @@ from conans import ConanFile, tools
 class QtConan(ConanFile):
     name = "qt"
     upstream_version = "5.12.4"
-    package_revision = ""
+    package_revision = "-r1"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -29,15 +29,15 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("common/1.0.0@sight/stable")
+        self.requires("common/1.0.1@sight/testing")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r2@sight/stable")
-            self.requires("openssl/1.1.1b-r1@sight/stable")
+            self.requires("zlib/1.2.11-r3@sight/testing")
+            self.requires("openssl/1.1.1b-r2@sight/testing")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r2@sight/stable")
-            self.requires("libjpeg/9c-r2@sight/stable")
-            self.requires("freetype/2.9.1-r2@sight/stable")
+            self.requires("libpng/1.6.34-r3@sight/testing")
+            self.requires("libjpeg/9c-r3@sight/testing")
+            self.requires("freetype/2.9.1-r3@sight/testing")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
