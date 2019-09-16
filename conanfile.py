@@ -24,7 +24,7 @@ class QtConan(ConanFile):
     no_copy_source = False
 
     def configure(self):
-        # Qt auto detect c++ standard and features. 
+        # Qt auto detect c++ standard and features.
         # Forcing it seems to break the build, at least on macOS and windows
         del self.settings.compiler.cppstd
 
