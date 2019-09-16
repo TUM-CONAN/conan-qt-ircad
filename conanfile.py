@@ -41,7 +41,7 @@ class QtConan(ConanFile):
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2-r1@sight/stable")
+            self.build_requires("jom/1.1.3@sight/testing")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -299,7 +299,13 @@ class QtConan(ConanFile):
 
         with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
             self.output.info("Using '%d' threads" % tools.cpu_count())
-            self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+            self.run(
+                "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
+                    self.source_folder,
+                    " ".join(args),
+                    common.get_cxx_flags()
+                )
+            )
             self.run("make ")
             self.run("make install > install.log")
 
@@ -308,7 +314,7 @@ class QtConan(ConanFile):
 
         if self.settings.os == "Windows":
             self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
-    
+
     def package_info(self):
         if self.settings.os == "Windows":
             self.env_info.path.append(os.path.join(self.package_folder, "bin"))
