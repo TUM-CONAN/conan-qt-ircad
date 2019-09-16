@@ -24,7 +24,6 @@ class QtConan(ConanFile):
     no_copy_source = False
 
     def configure(self):
-        del self.settings.compiler.libcxx
         if 'CI' not in os.environ:
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
