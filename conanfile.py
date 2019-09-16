@@ -24,10 +24,6 @@ class QtConan(ConanFile):
     no_copy_source = False
 
     def configure(self):
-        # Qt auto detect c++ standard and features.
-        # Forcing it seems to break the build, at least on macOS and windows
-        del self.settings.compiler.cppstd
-
         if 'CI' not in os.environ:
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
@@ -167,12 +163,14 @@ class QtConan(ConanFile):
         args = ["-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
-        if self.settings.build_type == "Debug":
-            args.append("-debug")
-            args.append("-gdb-index")
-        elif self.settings.build_type == "RelWithDebInfo":
+        if self.settings.build_type == "RelWithDebInfo" or (
+            self.settings.build_type == "Debug" and tools.os_info.is_windows
+        ):
             args.append("-release")
             args.append("-force-debug-info")
+            args.append("-gdb-index")
+        elif self.settings.build_type == "Debug":
+            args.append("-debug")
             args.append("-gdb-index")
         else:
             args.append("-release")
