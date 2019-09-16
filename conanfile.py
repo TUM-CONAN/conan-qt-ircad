@@ -273,7 +273,18 @@ class QtConan(ConanFile):
 
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
-                self.run("%s/qt5/configure %s " % (self.source_folder, " ".join(args)))
+                # Import common flags and defines
+                import common
+                common_flags = common.get_full_cxx_flags(build_type=self.settings.build_type)
+
+                self.run(
+                    "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
+                        self.source_folder,
+                        " ".join(args),
+                        common_flags
+                    )
+                )
+
                 self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
                 self.run("%s install > install.log" % build_command)
 
@@ -282,7 +293,7 @@ class QtConan(ConanFile):
             args.append("-ccache")
             args.append("-fontconfig")
             args.append("-no-dbus")
-            args.append("-c++std c++11")
+            args.append("-c++std c++1z")
             args.append("-qt-xcb")
             args.append("-gstreamer 1.0")
 
@@ -294,18 +305,19 @@ class QtConan(ConanFile):
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
-        # Import common flags and defines
-        import common
-
         with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
-            self.output.info("Using '%d' threads" % tools.cpu_count())
+            # Import common flags and defines
+            import common
+            common_flags = common.get_full_cxx_flags(build_type=self.settings.build_type)
+
             self.run(
                 "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
                     self.source_folder,
                     " ".join(args),
-                    common.get_cxx_flags()
+                    common_flags
                 )
             )
+
             self.run("make ")
             self.run("make install > install.log")
 
