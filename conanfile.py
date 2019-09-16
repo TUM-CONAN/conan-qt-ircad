@@ -24,6 +24,10 @@ class QtConan(ConanFile):
     no_copy_source = False
 
     def configure(self):
+        # Qt auto detect c++ standard and features. 
+        # Forcing it seems to break the build, at least on macOS and windows
+        del self.settings.compiler.cppstd
+
         if 'CI' not in os.environ:
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
@@ -205,6 +209,12 @@ class QtConan(ConanFile):
         args.append("-skip qtserialport")
         args.append("-skip qtdoc")
         args.append("-skip qtlocation")
+        args.append("-skip qtwebengine")
+        args.append("-skip qtxmlpatterns")
+        args.append("-skip qt3d")
+        args.append("-skip qtgamepad")
+        args.append("-skip qtimageformats")
+        args.append("-skip qtscript")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
