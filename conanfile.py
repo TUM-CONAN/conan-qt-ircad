@@ -169,8 +169,10 @@ class QtConan(ConanFile):
             args.append("-gdb-index")
         elif self.settings.build_type == "Debug":
             args.append("-debug")
-            args.append("-optimize-debug")
             args.append("-gdb-index")
+
+            if tools.os_info.is_linux:
+                args.append("-optimize-debug") 
         else:
             args.append("-release")
 
