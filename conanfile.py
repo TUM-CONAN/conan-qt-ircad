@@ -172,7 +172,7 @@ class QtConan(ConanFile):
             args.append("-gdb-index")
 
             if tools.os_info.is_linux:
-                args.append("-optimize-debug") 
+                args.append("-optimize-debug")
         else:
             args.append("-release")
 
