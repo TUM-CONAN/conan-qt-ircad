@@ -163,9 +163,7 @@ class QtConan(ConanFile):
         args = ["-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
-        if self.settings.build_type == "RelWithDebInfo" or (
-            self.settings.build_type == "Debug" and tools.os_info.is_windows
-        ):
+        if self.settings.build_type == "RelWithDebInfo":
             args.append("-release")
             args.append("-force-debug-info")
             args.append("-gdb-index")
@@ -282,7 +280,10 @@ class QtConan(ConanFile):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
                 # Import common flags and defines
                 import common
-                common_flags = common.get_full_cxx_flags(build_type=self.settings.build_type)
+                common_flags = common.get_cxx_flags()
+
+                if self.settings.build_type == "Debug":
+                    common_flags += " /Ox /Oy-"
 
                 self.run(
                     "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
