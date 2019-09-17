@@ -169,16 +169,17 @@ class QtConan(ConanFile):
             args.append("-gdb-index")
         elif self.settings.build_type == "Debug":
             args.append("-debug")
+            args.append("-optimize-debug")
             args.append("-gdb-index")
         else:
             args.append("-release")
 
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-        elif tools.os_info.is_windows:
-            # Increase compilation time, but significally decrease startup time, binaries size of Qt application
-            # See https://wiki.qt.io/Performance_Tip_Startup_Time
-            args.append("-ltcg")
+        
+        # Increase compilation time, but significally decrease startup time, binaries size of Qt application
+        # See https://wiki.qt.io/Performance_Tip_Startup_Time
+        args.append("-ltcg")
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
@@ -195,23 +196,32 @@ class QtConan(ConanFile):
         args.append("-ssl")
 
         # Qt skip modules list
-        args.append("-skip qtactiveqt")
-        args.append("-skip qtconnectivity")
-        args.append("-skip qtsensors")
-        args.append("-skip qttranslations")
-        args.append("-skip qtwayland")
-        args.append("-skip qtwebchannel")
-        args.append("-skip qtwebsockets")
-        args.append("-skip qtserialport")
-        args.append("-skip qtdoc")
-        args.append("-skip qtlocation")
-        args.append("-skip qtwebengine")
-        args.append("-skip qtxmlpatterns")
         args.append("-skip qt3d")
+        args.append("-skip qtactiveqt")
+        args.append("-skip qtcanvas3d")
+        args.append("-skip qtcharts")
+        args.append("-skip qtconnectivity")
+        args.append("-skip qtdatavis3d")
+        args.append("-skip qtdoc")
         args.append("-skip qtgamepad")
         args.append("-skip qtimageformats")
+        args.append("-skip qtlocation")
+        args.append("-skip qtpurchasing")
+        args.append("-skip qtremoteobjects")
         args.append("-skip qtscript")
-        args.append("-skip qtcharts")
+        args.append("-skip qtscxml")
+        args.append("-skip qtsensors")
+        args.append("-skip qtserialbus")
+        args.append("-skip qtserialport")
+        args.append("-skip qtspeech")
+        args.append("-skip qttranslations")
+        args.append("-skip qtvirtualkeyboard")
+        args.append("-skip qtwayland")
+        args.append("-skip qtwebchannel")
+        args.append("-skip qtwebengine")
+        args.append("-skip qtwebsockets")
+        args.append("-skip qtwebview")
+        args.append("-skip qtxmlpatterns")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
