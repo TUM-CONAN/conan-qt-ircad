@@ -211,6 +211,7 @@ class QtConan(ConanFile):
         args.append("-skip qtgamepad")
         args.append("-skip qtimageformats")
         args.append("-skip qtscript")
+        args.append("-skip qtcharts")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
