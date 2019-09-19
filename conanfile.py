@@ -125,6 +125,9 @@ class QtConan(ConanFile):
                 'libssl-dev',
                 'openssl',
                 'libpng-dev',
+                'ccache',
+                'gperf',
+                'bison',
             ]
             installer = tools.SystemPackageTool()
             for p in pack_names:
