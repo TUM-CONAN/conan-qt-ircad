@@ -271,13 +271,6 @@ class QtConan(ConanFile):
         args.append("-mp")
         args.append("-no-angle")
         args.append("-mediaplayer-backend wmf")
-        build_command = find_executable("jom.exe")
-        if build_command:
-            build_args = ["-j", "4"]
-        else:
-            build_command = "nmake.exe"
-            build_args = []
-        self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
@@ -306,7 +299,27 @@ class QtConan(ConanFile):
                     )
                 )
 
-                self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
+                build_command = find_executable("jom.exe")
+
+                return_code = self.run(
+                    build_command + ' -j 8',
+                    ignore_errors=True
+                )
+
+                # Try again
+                if return_code != 0:
+                    return_code = self.run(
+                        build_command + ' -j 8',
+                        ignore_errors=True
+                    )
+
+                # Try again, last time, slowy
+                if return_code != 0:
+                    self.run(
+                        build_command + ' -j 1',
+                        ignore_errors=False
+                    )
+
                 self.run("%s install > install.log" % build_command)
 
     def _build_unix(self, args):
