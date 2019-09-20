@@ -273,7 +273,7 @@ class QtConan(ConanFile):
         args.append("-mediaplayer-backend wmf")
         build_command = find_executable("jom.exe")
         if build_command:
-            build_args = ["-j", str(tools.cpu_count())]
+            build_args = ["-j", "4"]
         else:
             build_command = "nmake.exe"
             build_args = []
