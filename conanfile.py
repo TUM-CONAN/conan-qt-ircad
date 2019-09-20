@@ -296,7 +296,7 @@ class QtConan(ConanFile):
                 common_flags = common.get_cxx_flags()
 
                 if self.settings.build_type == "Debug":
-                    common_flags += " /Ox /Oy-"
+                    common_flags += " /Ox /Oy- /Ob1"
 
                 self.run(
                     "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
