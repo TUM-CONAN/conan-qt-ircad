@@ -11,7 +11,7 @@ from conans import ConanFile, tools
 class QtConan(ConanFile):
     name = "qt"
     upstream_version = "5.12.4"
-    package_revision = ""
+    package_revision = "-r1"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -24,24 +24,23 @@ class QtConan(ConanFile):
     no_copy_source = False
 
     def configure(self):
-        del self.settings.compiler.libcxx
         if 'CI' not in os.environ:
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("common/1.0.0@sight/stable")
+        self.requires("common/1.0.1@sight/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r2@sight/stable")
-            self.requires("openssl/1.1.1b-r1@sight/stable")
+            self.requires("zlib/1.2.11-r3@sight/stable")
+            self.requires("openssl/1.1.1b-r2@sight/stable")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r2@sight/stable")
-            self.requires("libjpeg/9c-r2@sight/stable")
-            self.requires("freetype/2.9.1-r2@sight/stable")
+            self.requires("libpng/1.6.34-r3@sight/stable")
+            self.requires("libjpeg/9c-r3@sight/stable")
+            self.requires("freetype/2.9.1-r3@sight/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2-r1@sight/stable")
+            self.build_requires("jom/1.1.3@sight/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -164,22 +163,25 @@ class QtConan(ConanFile):
         args = ["-shared", "-opensource", "-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 "-prefix %s" % self.package_folder]
 
-        if self.settings.build_type == "Debug":
-            args.append("-debug")
-            args.append("-gdb-index")
-        elif self.settings.build_type == "RelWithDebInfo":
+        if self.settings.build_type == "RelWithDebInfo":
             args.append("-release")
             args.append("-force-debug-info")
             args.append("-gdb-index")
+        elif self.settings.build_type == "Debug":
+            args.append("-debug")
+            args.append("-gdb-index")
+
+            if tools.os_info.is_linux:
+                args.append("-optimize-debug")
         else:
             args.append("-release")
 
         if tools.os_info.is_linux:
             args.append("-reduce-relocations")
-        elif tools.os_info.is_windows:
-            # Increase compilation time, but significally decrease startup time, binaries size of Qt application
-            # See https://wiki.qt.io/Performance_Tip_Startup_Time
-            args.append("-ltcg")
+
+        # Increase compilation time, but significally decrease startup time, binaries size of Qt application
+        # See https://wiki.qt.io/Performance_Tip_Startup_Time
+        args.append("-ltcg")
 
         # Use optimized qrc, uic, moc... even in debug for faster build later
         args.append("-optimized-tools")
@@ -196,16 +198,32 @@ class QtConan(ConanFile):
         args.append("-ssl")
 
         # Qt skip modules list
+        args.append("-skip qt3d")
         args.append("-skip qtactiveqt")
+        args.append("-skip qtcanvas3d")
+        args.append("-skip qtcharts")
         args.append("-skip qtconnectivity")
+        args.append("-skip qtdatavis3d")
+        args.append("-skip qtdoc")
+        args.append("-skip qtgamepad")
+        args.append("-skip qtimageformats")
+        args.append("-skip qtlocation")
+        args.append("-skip qtpurchasing")
+        args.append("-skip qtremoteobjects")
+        args.append("-skip qtscript")
+        args.append("-skip qtscxml")
         args.append("-skip qtsensors")
+        args.append("-skip qtserialbus")
+        args.append("-skip qtserialport")
+        args.append("-skip qtspeech")
         args.append("-skip qttranslations")
+        args.append("-skip qtvirtualkeyboard")
         args.append("-skip qtwayland")
         args.append("-skip qtwebchannel")
+        args.append("-skip qtwebengine")
         args.append("-skip qtwebsockets")
-        args.append("-skip qtserialport")
-        args.append("-skip qtdoc")
-        args.append("-skip qtlocation")
+        args.append("-skip qtwebview")
+        args.append("-skip qtxmlpatterns")
 
         if tools.os_info.is_windows:
             zlib_lib_paths = self.deps_cpp_info["zlib"].lib_paths
@@ -253,13 +271,6 @@ class QtConan(ConanFile):
         args.append("-mp")
         args.append("-no-angle")
         args.append("-mediaplayer-backend wmf")
-        build_command = find_executable("jom.exe")
-        if build_command:
-            build_args = ["-j", str(tools.cpu_count())]
-        else:
-            build_command = "nmake.exe"
-            build_args = []
-        self.output.info("Using '%s %s' to build" % (build_command, " ".join(build_args)))
 
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
@@ -273,8 +284,42 @@ class QtConan(ConanFile):
 
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
-                self.run("%s/qt5/configure %s " % (self.source_folder, " ".join(args)))
-                self.run("%s %s > build.log" % (build_command, " ".join(build_args)))
+                # Import common flags and defines
+                import common
+                common_flags = common.get_cxx_flags()
+
+                if self.settings.build_type == "Debug":
+                    common_flags += " /Ox /Oy- /Ob1"
+
+                self.run(
+                    "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
+                        self.source_folder,
+                        " ".join(args),
+                        common_flags
+                    )
+                )
+
+                build_command = find_executable("jom.exe")
+
+                return_code = self.run(
+                    build_command + ' -j 8',
+                    ignore_errors=True
+                )
+
+                # Try again
+                if return_code != 0:
+                    return_code = self.run(
+                        build_command + ' -j 8',
+                        ignore_errors=True
+                    )
+
+                # Try again, last time, slowy
+                if return_code != 0:
+                    self.run(
+                        build_command + ' -j 1',
+                        ignore_errors=False
+                    )
+
                 self.run("%s install > install.log" % build_command)
 
     def _build_unix(self, args):
@@ -282,7 +327,7 @@ class QtConan(ConanFile):
             args.append("-ccache")
             args.append("-fontconfig")
             args.append("-no-dbus")
-            args.append("-c++std c++11")
+            args.append("-c++std c++1z")
             args.append("-qt-xcb")
             args.append("-gstreamer 1.0")
 
@@ -294,12 +339,19 @@ class QtConan(ConanFile):
 
         args.append("-plugindir " + os.path.join(self.package_folder, "lib", "qt5", "plugins"))
 
-        # Import common flags and defines
-        import common
-
         with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
-            self.output.info("Using '%d' threads" % tools.cpu_count())
-            self.run("%s/qt5/configure %s QMAKE_CXXFLAGS+=\"%s\"" % (self.source_folder, " ".join(args), common.get_cxx_flags()))
+            # Import common flags and defines
+            import common
+            common_flags = common.get_full_cxx_flags(build_type=self.settings.build_type)
+
+            self.run(
+                "{}/qt5/configure {} QMAKE_CXXFLAGS+=\"{}\"".format(
+                    self.source_folder,
+                    " ".join(args),
+                    common_flags
+                )
+            )
+
             self.run("make ")
             self.run("make install > install.log")
 
@@ -308,7 +360,7 @@ class QtConan(ConanFile):
 
         if self.settings.os == "Windows":
             self.copy("*.dll", dst="bin", src=self.deps_cpp_info["zlib"].bin_paths[0])
-    
+
     def package_info(self):
         if self.settings.os == "Windows":
             self.env_info.path.append(os.path.join(self.package_folder, "bin"))
