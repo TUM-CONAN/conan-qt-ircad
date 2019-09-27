@@ -28,19 +28,19 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("common/1.0.1@sight/testing")
+        self.requires("common/1.0.1@sight/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r3@sight/testing")
-            self.requires("openssl/1.1.1b-r2@sight/testing")
+            self.requires("zlib/1.2.11-r3@sight/stable")
+            self.requires("openssl/1.1.1b-r2@sight/stable")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r3@sight/testing")
-            self.requires("libjpeg/9c-r3@sight/testing")
-            self.requires("freetype/2.9.1-r3@sight/testing")
+            self.requires("libpng/1.6.34-r3@sight/stable")
+            self.requires("libjpeg/9c-r3@sight/stable")
+            self.requires("freetype/2.9.1-r3@sight/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.3@sight/testing")
+            self.build_requires("jom/1.1.3@sight/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
