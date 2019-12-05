@@ -35,7 +35,7 @@ class QtConan(ConanFile):
         self.requires("ircad_common/1.0.0@camposs/stable")
         if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@camposs/stable")
-            self.requires("openssl/1.1.1b@bincrafters/stable")
+            self.requires("openssl/1.1.1d")
 
         if not tools.os_info.is_linux:
             self.requires("libpng/1.6.36@bincrafters/stable")
@@ -44,7 +44,7 @@ class QtConan(ConanFile):
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.2-r1@sight/stable") # not yet available ..
+            self.build_requires("jom/1.1.2-r1@camposs/stable") 
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
