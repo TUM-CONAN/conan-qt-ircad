@@ -38,9 +38,9 @@ class QtConan(ConanFile):
             self.requires("openssl/1.1.1d")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.36@bincrafters/stable")
+            self.requires("libpng/1.6.34-r4@camposs/stable")
             self.requires("libjpeg/9c-r2@camposs/stable")
-            self.requires("freetype/2.9.1@bincrafters/stable")
+            self.requires("freetype/2.9.1-r4@camposs/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
