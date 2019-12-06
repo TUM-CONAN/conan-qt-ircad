@@ -28,19 +28,19 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("common/1.0.2@sight/stable")
+        self.requires("ircad_common/1.0.2@camposs/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11-r4@sight/stable")
-            self.requires("openssl/1.1.1b-r3@sight/stable")
+            self.requires("zlib/1.2.11@camposs/stable")
+            self.requires("openssl/1.1.1d")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r4@sight/stable")
-            self.requires("libjpeg/9c-r4@sight/stable")
-            self.requires("freetype/2.9.1-r4@sight/stable")
+            self.requires("libpng/1.6.34-r4@camposs/stable")
+            self.requires("libjpeg/9c-r2@camposs/stable")
+            self.requires("freetype/2.9.1-r4@camposs/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
-            self.build_requires("jom/1.1.3@sight/stable")
+            self.build_requires("jom/1.1.3@camposs/stable")
 
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -88,6 +88,48 @@ class QtConan(ConanFile):
             for p in pack_names:
                 installer.install(p)
 
+        if tools.os_info.linux_distro == "ubuntu":
+            pack_names = [
+                'libfontconfig1-dev',
+                'libfreetype6-dev',
+                'libx11-dev',
+                'libxext-dev',
+                'libxfixes-dev',
+                'libxi-dev',
+                'libxrender-dev',
+                'libxcomposite-dev',
+                'libxcursor-dev',
+                'libxtst-dev',
+                'libxkbcommon-dev',
+                'libxkbcommon-x11-dev',
+                'libxcb1-dev',
+                'libx11-xcb-dev',
+                'libxcb-glx0-dev',
+                'libxcb-keysyms1-dev',
+                'libxcb-image0-dev',
+                'libxcb-shm0-dev',
+                'libxcb-icccm4-dev',
+                'libxcb-sync-dev',
+                'libxcb-xfixes0-dev',
+                'libxcb-shape0-dev',
+                'libxcb-randr0-dev',
+                'libxcb-render-util0-dev',
+                'libc6-dev',
+                'libgstreamer1.0-dev',
+                'libgstreamer-plugins-base1.0-dev',
+                'libjpeg-turbo8-dev',
+                'libssl-dev',
+                'openssl',
+                'libpng-dev',
+                'ccache',
+                'gperf',
+                'bison',
+            ]
+
+            installer = tools.SystemPackageTool()
+            for p in pack_names:
+                installer.install(p)
+
     def system_requirements(self):
         if tools.os_info.linux_distro == "linuxmint":
             pack_names = [
@@ -121,6 +163,33 @@ class QtConan(ConanFile):
             installer = tools.SystemPackageTool()
             for p in pack_names:
                 installer.install(p)
+
+
+        if tools.os_info.linux_distro == "ubuntu":
+            pack_names = [
+                'libfontconfig1',
+                'libfreetype6',
+                'libxcb1',
+                'libxcb-glx0',
+                'libxcb-keysyms1',
+                'libxcb-image0',
+                'libxcb-shm0',
+                'libxcb-icccm4',
+                'libxcb-xfixes0',
+                'libxcb-shape0',
+                'libxcb-randr0',
+                'libxcb-render-util0',
+                'libgstreamer1.0-0',
+                'libgstreamer-plugins-base1.0-0',
+                'libjpeg-turbo8',
+                'openssl',
+                'libpng16-16',
+            ]
+
+            installer = tools.SystemPackageTool()
+            for p in pack_names:
+                installer.install(p)
+
 
     def source(self):
         url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}" \
