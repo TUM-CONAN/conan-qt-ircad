@@ -11,7 +11,7 @@ from conans import ConanFile, tools
 class QtConan(ConanFile):
     name = "qt"
     upstream_version = "5.12.4"
-    package_revision = "-r2"
+    package_revision = "-r3"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -31,11 +31,12 @@ class QtConan(ConanFile):
         self.requires("ircad_common/1.0.2@camposs/stable")
         if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@camposs/stable")
+            self.requires("libjpeg-turbo/2.0.5")
             self.requires("openssl/1.1.1d")
 
         if not tools.os_info.is_linux:
             self.requires("libpng/1.6.34-r4@camposs/stable")
-            self.requires("libjpeg/9c-r2@camposs/stable")
+            self.requires("libjpeg-turbo/2.0.5")
             self.requires("freetype/2.9.1-r4@camposs/stable")
 
     def build_requirements(self):
@@ -71,7 +72,7 @@ class QtConan(ConanFile):
                 'libc6-dev',
                 'libgstreamer1.0-dev',
                 'libgstreamer-plugins-base1.0-dev',
-                'libjpeg-turbo8-dev',
+                'libjpeg-turbo8-dev',  # This is duplicated with the conan requirement
                 'openssl'
             ]
 
@@ -117,7 +118,7 @@ class QtConan(ConanFile):
                 'libc6-dev',
                 'libgstreamer1.0-dev',
                 'libgstreamer-plugins-base1.0-dev',
-                'libjpeg-turbo8-dev',
+                'libjpeg-turbo8-dev', # This is duplicated with the conan requirement
                 'libssl-dev',
                 'openssl',
                 'libpng-dev',
@@ -147,7 +148,7 @@ class QtConan(ConanFile):
                 'libxcb-render-util0',
                 'libgstreamer1.0-0',
                 'libgstreamer-plugins-base1.0-0',
-                'libjpeg-turbo8',
+                'libjpeg-turbo8',  # This is duplicated with the conan requirement
                 'openssl'
             ]
 
@@ -181,7 +182,7 @@ class QtConan(ConanFile):
                 'libxcb-render-util0',
                 'libgstreamer1.0-0',
                 'libgstreamer-plugins-base1.0-0',
-                'libjpeg-turbo8',
+                'libjpeg-turbo8',  # This is duplicated with the conan requirement
                 'openssl',
                 'libpng16-16',
             ]
@@ -213,7 +214,7 @@ class QtConan(ConanFile):
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
                 "-llibjpeg",
-                "-l{0}".format(self.deps_cpp_info["libjpeg"].libs[0])
+                "-l{0}".format(self.deps_cpp_info["libjpeg-turbo"].libs[0])
             )
             tools.replace_in_file(
                 os.path.join(self.source_folder, "qt5", "qtbase", "src", "gui", "configure.json"),
@@ -257,7 +258,7 @@ class QtConan(ConanFile):
 
         args.append("-system-zlib")
         args.append("-system-libpng")
-        args.append("-system-libjpeg")
+        args.append("-system-libjpeg") # should that be libjpeg-turbo and custom here as well for linux ??
         args.append("-system-freetype")
 
         # openGL
@@ -303,8 +304,8 @@ class QtConan(ConanFile):
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
             args += [" ".join(["-L" + i for i in libpng_lib_paths])]
 
-            libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
-            args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
+            libjpeg_lib_paths = self.deps_cpp_info["libjpeg-turbo"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg-turbo"].include_paths]
             args += [" ".join(["-L" + i for i in libjpeg_lib_paths])]
 
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
@@ -320,8 +321,8 @@ class QtConan(ConanFile):
             args += ["-I %s" % i for i in self.deps_cpp_info["libpng"].include_paths]
             args += [" ".join(["-L" + i for i in libpng_lib_paths])]
 
-            libjpeg_lib_paths = self.deps_cpp_info["libjpeg"].lib_paths
-            args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg"].include_paths]
+            libjpeg_lib_paths = self.deps_cpp_info["libjpeg-turbo"].lib_paths
+            args += ["-I %s" % i for i in self.deps_cpp_info["libjpeg-turbo"].include_paths]
             args += [" ".join(["-L" + i for i in libjpeg_lib_paths])]
 
             freetype_lib_paths = self.deps_cpp_info["freetype"].lib_paths
