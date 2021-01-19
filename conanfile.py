@@ -398,7 +398,7 @@ class QtConan(ConanFile):
             args.append("-ccache")
             args.append("-fontconfig")
             args.append("-no-dbus")
-            args.append("-c++std c++1z")
+            args.append("-c++std c++14")
             args.append("-qt-xcb")
             args.append("-gstreamer 1.0")
 
