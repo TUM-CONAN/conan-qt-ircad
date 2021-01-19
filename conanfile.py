@@ -23,6 +23,14 @@ class QtConan(ConanFile):
     short_paths = True
     no_copy_source = False
 
+    scm = {
+        "type": "git",
+        "subfolder": "qt5",
+        "url": "https://code.qt.io/qt/qt5.git",
+        "revision": "%s" % (upstream_version),
+        "submodule": "recursive",
+    }
+
     def configure(self):
         if 'CI' not in os.environ:
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
@@ -191,13 +199,6 @@ class QtConan(ConanFile):
             for p in pack_names:
                 installer.install(p)
 
-
-    def source(self):
-        url = "http://download.qt.io/official_releases/qt/{0}/{1}/single/qt-everywhere-src-{1}" \
-            .format(self.upstream_version[:self.upstream_version.rfind('.')], self.upstream_version)
-
-        tools.get("%s.tar.xz" % url)
-        shutil.move("qt-everywhere-src-%s" % self.upstream_version, "qt5")
 
     def build(self):
         if tools.os_info.is_windows:
