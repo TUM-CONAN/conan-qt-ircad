@@ -11,7 +11,7 @@ from conans import ConanFile, tools
 class QtConan(ConanFile):
     name = "qt"
     upstream_version = "5.12.4"
-    package_revision = "-r3"
+    package_revision = "-r4"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
@@ -36,7 +36,7 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("ircad_common/1.0.2@camposs/stable")
+        self.requires("ircad_common/1.0.3@camposs/stable")
         if tools.os_info.is_windows:
             self.requires("zlib/1.2.11@camposs/stable")
             self.requires("libjpeg-turbo/2.0.5")
@@ -45,7 +45,7 @@ class QtConan(ConanFile):
         if not tools.os_info.is_linux:
             self.requires("libpng/1.6.34-r4@camposs/stable")
             self.requires("libjpeg-turbo/2.0.5")
-            self.requires("freetype/2.9.1-r4@camposs/stable")
+            self.requires("freetype/2.9.1-r5@camposs/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
