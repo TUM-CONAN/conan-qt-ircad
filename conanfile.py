@@ -9,13 +9,15 @@ from conans import ConanFile, tools
 
 
 class QtConan(ConanFile):
+    python_requires = "camp_common/[>=0.1]@camposs/stable"
+
     name = "qt"
     upstream_version = "5.12.4"
-    package_revision = "-r4"
+    package_revision = "-r5"
     version = "{0}{1}".format(upstream_version, package_revision)
 
     description = "Qt library."
-    url = "https://git.ircad.fr/conan/conan-qt"
+    url = "https://github.com/TUM-CONAN/conan-qt-ircad"
     homepage = "https://www.qt.io/"
     license = "http://doc.qt.io/qt-5/lgpl.html"
     settings = "os", "arch", "compiler", "build_type"
@@ -36,16 +38,15 @@ class QtConan(ConanFile):
             os.environ["CONAN_SYSREQUIRES_MODE"] = "verify"
 
     def requirements(self):
-        self.requires("ircad_common/1.0.3@camposs/stable")
         if tools.os_info.is_windows:
-            self.requires("zlib/1.2.11@camposs/stable")
+            self.requires("zlib/1.2.11-r1@camposs/stable")
             self.requires("libjpeg-turbo/2.0.5")
             self.requires("openssl/1.1.1d")
 
         if not tools.os_info.is_linux:
-            self.requires("libpng/1.6.34-r4@camposs/stable")
+            self.requires("libpng/1.6.34-r5@camposs/stable")
             self.requires("libjpeg-turbo/2.0.5")
-            self.requires("freetype/2.9.1-r5@camposs/stable")
+            self.requires("freetype/2.9.1-r6@camposs/stable")
 
     def build_requirements(self):
         if tools.os_info.is_windows:
@@ -356,7 +357,7 @@ class QtConan(ConanFile):
         with tools.vcvars(self.settings):
             with tools.environment_append({"PATH": self.deps_cpp_info["zlib"].bin_paths}):
                 # Import common flags and defines
-                import common
+                common = self.python_requires["camp_common"].module
                 common_flags = common.get_cxx_flags()
 
                 if self.settings.build_type == "Debug":
@@ -412,7 +413,7 @@ class QtConan(ConanFile):
 
         with tools.environment_append({"MAKEFLAGS": "-j %d" % tools.cpu_count()}):
             # Import common flags and defines
-            import common
+            common = self.python_requires["camp_common"].module
             common_flags = common.get_full_cxx_flags(build_type=self.settings.build_type)
 
             self.run(
